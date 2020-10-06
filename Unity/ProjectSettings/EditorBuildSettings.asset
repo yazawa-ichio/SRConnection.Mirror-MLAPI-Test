@@ -6,6 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Mirror/Examples/Chat/Scenes/Main.unity
-    guid: f4e8d4de4484e44bba666f2d1f66c73e
+    path: Assets/SRConnection.Mirror.Examples/Chat/Scenes/Main.unity
+    guid: f582389132d446443958eac118cc71da
+  - enabled: 1
+    path: Assets/SRConnection.Mirror.Examples/Pong/Scenes/Scene.unity
+    guid: a2eac2d2d7592c24d99b83d489ff10dc
+  - enabled: 1
+    path: Assets/SRConnection.Mirror.Examples/Tanks/Scenes/Scene.unity
+    guid: faedb936b0445c64d86a9bfb8af129c2
+  - enabled: 1
+    path: Assets/SRConnection.Mirror.Examples/RigidbodyPhysics/Scenes/BounceScene.unity
+    guid: 2e55263f24ed7124da04abc222243c94
+  - enabled: 1
+    path: Assets/SRConnection.Mirror.Examples/Discovery/Scenes/Scene.unity
+    guid: 6dc3104661ba9d94faeb269af04d678b
   m_configObjects: {}
