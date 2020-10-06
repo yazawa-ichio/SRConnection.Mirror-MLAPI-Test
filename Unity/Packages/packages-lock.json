@@ -66,11 +66,11 @@
       }
     },
     "jp.yazawa-ichio.srconnection.unity": {
-      "version": "https://github.com/yazawa-ichio/SRConnection.git?path=unity/Assets/SRConnection.Unity#0.0.1",
+      "version": "https://github.com/yazawa-ichio/SRConnection.git?path=unity/Assets/SRConnection.Unity#0.0.2",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "238f84ffbdd2257ef3e5fa3e759a3b562e88268b"
+      "hash": "3057dce36bd6881ac1995a44d4d1cd2895798d7e"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
