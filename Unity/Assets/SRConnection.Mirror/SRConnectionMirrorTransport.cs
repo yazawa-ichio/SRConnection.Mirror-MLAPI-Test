@@ -9,7 +9,7 @@ using UnityEngine;
 namespace SRConnection.Mirror
 {
 
-	public class SRConnectionTransport : Transport
+	public class SRConnectionMirrorTransport : Transport
 	{
 		[SerializeField]
 		int m_Port = 7898;
