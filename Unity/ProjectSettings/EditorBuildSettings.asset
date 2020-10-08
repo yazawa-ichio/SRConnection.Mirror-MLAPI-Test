@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/SRConnection.MLAPI.Examples/Chat.unity
+    guid: 539c194732debf04ba969a4db97df5a5
+  - enabled: 1
     path: Assets/SRConnection.Mirror.Examples/Chat/Scenes/Main.unity
     guid: f582389132d446443958eac118cc71da
   - enabled: 1
