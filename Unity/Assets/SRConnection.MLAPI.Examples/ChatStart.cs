@@ -1,4 +1,4 @@
-﻿using MLAPI;
+using MLAPI;
 using UnityEngine;
 
 namespace SRConnection.Examples
@@ -10,16 +10,16 @@ namespace SRConnection.Examples
 
 		private void OnGUI()
 		{
-			if (!NetworkingManager.Singleton.IsClient && !NetworkingManager.Singleton.IsHost)
+			if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsHost)
 			{
 				if (GUILayout.Button("StartHost"))
 				{
-					NetworkingManager.Singleton.StartHost();
-					GameObject.Instantiate(m_Prefab).GetComponent<NetworkedObject>().Spawn();
+					NetworkManager.Singleton.StartHost();
+					GameObject.Instantiate(m_Prefab).GetComponent<NetworkObject>().Spawn();
 				}
 				if (GUILayout.Button("StartClient"))
 				{
-					NetworkingManager.Singleton.StartClient();
+					NetworkManager.Singleton.StartClient();
 				}
 			}
 		}

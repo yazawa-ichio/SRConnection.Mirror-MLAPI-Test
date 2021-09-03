@@ -1,18 +1,18 @@
-﻿using Boo.Lang;
 using MLAPI;
-using MLAPI.NetworkedVar;
-using MLAPI.NetworkedVar.Collections;
+using MLAPI.NetworkVariable;
+using MLAPI.NetworkVariable.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SRConnection.Examples
 {
 
-	public class Chat : NetworkedBehaviour
+	public class Chat : NetworkBehaviour
 	{
-		private NetworkedList<string> ChatMessages = new NetworkedList<string>(new NetworkedVarSettings()
+		private NetworkList<string> ChatMessages = new NetworkList<string>(new NetworkVariableSettings()
 		{
-			ReadPermission = NetworkedVarPermission.Everyone,
-			WritePermission = NetworkedVarPermission.Everyone,
+			ReadPermission = NetworkVariablePermission.Everyone,
+			WritePermission = NetworkVariablePermission.Everyone,
 			SendTickrate = 5
 		}, new List<string>());
 
