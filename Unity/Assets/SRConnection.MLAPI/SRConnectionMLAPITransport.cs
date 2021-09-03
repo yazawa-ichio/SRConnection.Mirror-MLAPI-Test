@@ -1,4 +1,4 @@
-﻿using MLAPI.Transports;
+using MLAPI.Transports;
 using MLAPI.Transports.Tasks;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SRConnection.MLAPI
 {
-	public class SRConnectionMLAPITransport : Transport
+	public class SRConnectionMLAPITransport : NetworkTransport
 	{
 		[SerializeField]
 		int m_Port = 7898;
@@ -20,8 +20,8 @@ namespace SRConnection.MLAPI
 		ClientConnection m_ClientConn;
 		Queue<PeerEvent> m_PeerEvent = new Queue<PeerEvent>();
 		Queue<Message> m_DelayMessage = new Queue<Message>();
-		Dictionary<string, short> m_ChannelId = new Dictionary<string, short>();
-		Dictionary<short, string> m_ChannelName = new Dictionary<short, string>();
+		Dictionary<NetworkChannel, short> m_ChanneTolId = new Dictionary<NetworkChannel, short>();
+		Dictionary<short, NetworkChannel> m_IdToChannel = new Dictionary<short, NetworkChannel>();
 
 
 		ulong GetId(int id)
@@ -79,25 +79,24 @@ namespace SRConnection.MLAPI
 
 		public override void Init()
 		{
-			m_ChannelId.Clear();
-			m_ChannelName.Clear();
+			m_ChanneTolId.Clear();
+			m_IdToChannel.Clear();
 			m_ClientConn?.Dispose();
 			m_ClientConn = null;
 			m_Server?.Dispose();
 			m_Server = null;
 		}
-
-		public override NetEventType PollEvent(out ulong clientId, out string channelName, out ArraySegment<byte> payload, out float receiveTime)
+		public override NetworkEvent PollEvent(out ulong clientId, out NetworkChannel networkChannel, out ArraySegment<byte> payload, out float receiveTime)
 		{
 			{
 				if (m_PeerEvent.Count > 0)
 				{
 					var e = m_PeerEvent.Dequeue();
 					clientId = GetId(e.Peer.ConnectionId);
-					channelName = null;
+					networkChannel = default;
 					payload = default;
 					receiveTime = Time.realtimeSinceStartup;
-					return e.EventType == PeerEvent.Type.Add ? NetEventType.Connect : NetEventType.Disconnect;
+					return e.EventType == PeerEvent.Type.Add ? NetworkEvent.Connect : NetworkEvent.Disconnect;
 				}
 			}
 			{
@@ -105,10 +104,10 @@ namespace SRConnection.MLAPI
 				{
 					var message = m_DelayMessage.Dequeue();
 					clientId = GetId(message.Peer.ConnectionId);
-					m_ChannelName.TryGetValue(message.ChannelId, out channelName);
+					m_IdToChannel.TryGetValue(message.ChannelId, out networkChannel);
 					payload = new ArraySegment<byte>(message.ToArray());
 					receiveTime = Time.realtimeSinceStartup;
-					return NetEventType.Data;
+					return NetworkEvent.Data;
 				}
 			}
 			{
@@ -120,31 +119,31 @@ namespace SRConnection.MLAPI
 						var e = m_PeerEvent.Dequeue();
 						m_DelayMessage.Enqueue(message.Copy());
 						clientId = GetId(e.Peer.ConnectionId);
-						channelName = null;
+						networkChannel = default;
 						payload = default;
 						receiveTime = Time.realtimeSinceStartup;
-						return e.EventType == PeerEvent.Type.Add ? NetEventType.Connect : NetEventType.Disconnect;
+						return e.EventType == PeerEvent.Type.Add ? NetworkEvent.Connect : NetworkEvent.Disconnect;
 					}
 					else
 					{
 						clientId = GetId(message.Peer.ConnectionId);
-						m_ChannelName.TryGetValue(message.ChannelId, out channelName);
+						m_IdToChannel.TryGetValue(message.ChannelId, out networkChannel);
 						payload = new ArraySegment<byte>(message.ToArray());
 						receiveTime = Time.realtimeSinceStartup;
-						return NetEventType.Data;
+						return NetworkEvent.Data;
 					}
 				}
 			}
 			clientId = default;
-			channelName = default;
+			networkChannel = default;
 			payload = default;
 			receiveTime = default;
-			return NetEventType.Nothing;
+			return NetworkEvent.Nothing;
 		}
 
-		public override void Send(ulong clientId, ArraySegment<byte> data, string channelName)
+		public override void Send(ulong clientId, ArraySegment<byte> data, NetworkChannel networkChannel)
 		{
-			if (m_ChannelId.TryGetValue(channelName, out var id))
+			if (m_ChanneTolId.TryGetValue(networkChannel, out var id))
 			{
 				var conn = m_Server ?? m_ClientConn;
 				conn?.ChannelSend(id, GetId(clientId), data.Array, data.Offset, data.Count);
@@ -201,6 +200,7 @@ namespace SRConnection.MLAPI
 				task.Success = false;
 				task.TransportException = ex;
 				task.IsDone = true;
+				Debug.Log(ex);
 			}
 		}
 
@@ -229,37 +229,37 @@ namespace SRConnection.MLAPI
 			{
 				var info = MLAPI_CHANNELS[i];
 				var channel = (short)(i + 101);
-				var config = GetConfig(info.Type);
+				var config = GetConfig(info.Delivery);
 
 				conn.Channel.Bind(channel, config);
-				m_ChannelName[channel] = info.Name;
-				m_ChannelId[info.Name] = channel;
+				m_IdToChannel[channel] = info.Channel;
+				m_ChanneTolId[info.Channel] = channel;
 			}
 		}
 
-		private Channel.IConfig GetConfig(ChannelType type)
+		private Channel.IConfig GetConfig(NetworkDelivery type)
 		{
 			switch (type)
 			{
-				case ChannelType.Unreliable:
+				case NetworkDelivery.Unreliable:
 					return new Channel.UnreliableChannelConfig()
 					{
 						Encrypt = true,
 					};
-				case ChannelType.UnreliableSequenced:
+				case NetworkDelivery.UnreliableSequenced:
 					return new Channel.UnreliableChannelConfig()
 					{
 						Encrypt = true,
 						Ordered = true,
 					};
-				case ChannelType.Reliable:
+				case NetworkDelivery.Reliable:
 					return new Channel.ReliableChannelConfig()
 					{
 						Encrypt = true,
 						Ordered = false,
 					};
-				case ChannelType.ReliableFragmentedSequenced:
-				case ChannelType.ReliableSequenced:
+				case NetworkDelivery.ReliableFragmentedSequenced:
+				case NetworkDelivery.ReliableSequenced:
 				default:
 					return new Channel.ReliableChannelConfig()
 					{
