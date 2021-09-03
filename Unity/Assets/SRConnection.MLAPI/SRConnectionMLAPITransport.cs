@@ -200,7 +200,6 @@ namespace SRConnection.MLAPI
 				task.Success = false;
 				task.TransportException = ex;
 				task.IsDone = true;
-				Debug.Log(ex);
 			}
 		}
 
